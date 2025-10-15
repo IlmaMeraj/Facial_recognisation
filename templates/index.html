@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Facial Expression Recognition</title>
+</head>
+<body>
+    <h2>Upload an Image or Use Webcam to Detect Emotion</h2>
+
+    <!-- Upload Image Form -->
+    <h3>Upload an Image</h3>
+    <form action="/predict" method="post" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <input type="submit" value="Predict Emotion">
+    </form>
+
+    <h3>Or Use Webcam</h3>
+    <!-- Webcam Section -->
+    <div id="webcam-container">
+        <video id="webcam" width="480" height="360" autoplay></video>
+        <button id="capture-btn">Capture</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+    </div>
+
+    <h3>Detected Emotion: <span id="predicted-emotion"></span></h3>
+
+    <script>
+        // Get elements
+        const webcam = document.getElementById('webcam');
+        const captureButton = document.getElementById('capture-btn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const predictedEmotion = document.getElementById('predicted-emotion');
+
+        // Access webcam
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    webcam.srcObject = stream;
+                })
+                .catch(function(error) {
+                    console.log("Error accessing webcam: " + error);
+                });
+        }
+
+        // Capture image from webcam
+        captureButton.addEventListener('click', function() {
+            canvas.width = webcam.videoWidth;
+            canvas.height = webcam.videoHeight;
+            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to image data URL
+            const imageDataUrl = canvas.toDataURL('image/jpeg');
+
+            // Send the image to the server for prediction
+            fetch('/predict-webcam', {
+                method: 'POST',
+                body: JSON.stringify({ image: imageDataUrl }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                predictedEmotion.innerText = data.emotion;
+            })
+            .catch(error => {
+                console.log("Error capturing image: ", error);
+            });
+        });
+    </script>
+
+    {% if emotion %}
+        <h3>Detected Emotion: {{ emotion }}</h3>
+    {% endif %}
+</body>
+</html>
