@@ -18,7 +18,7 @@ The trained model files are not included in this repository due to large file si
 You can download the complete model folder from the link below:
 
 Model  Download Link:
-https://drive.google.com/file/d/1AM-HqYFju74ug7rnU7CFgQftZKjc4Yju/view?usp=sharing
+https://drive.google.com/file/d/1lC63UKvEXSzAixk83EwcM157a8o3tGqT/view?usp=drive_link
 
 After downloading, extract and place the folder inside project root:
 
@@ -204,4 +204,5 @@ Benefits:
 
 Ilma Meraj  
 Computer Engineering Student
+
 
