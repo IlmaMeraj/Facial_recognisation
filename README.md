@@ -14,6 +14,24 @@ This project demonstrates end-to-end ML integration from model training → back
 
 Repository: https://github.com/IlmaMeraj/Facial_recognisation
 
+The trained model files are not included in this repository due to large file size.
+You can download the complete model folder from the link below:
+
+Model  Download Link:
+https://drive.google.com/file/d/1AM-HqYFju74ug7rnU7CFgQftZKjc4Yju/view?usp=sharing
+
+After downloading, extract and place the folder inside project root:
+
+```
+facial_expression_recognition/
+│
+├ model/
+│   ├ facialemotionmodel.h5
+│   ├ facialemotionmodel.json
+│   ├ emotiondetector.h5
+│   ├ emotiondetector.json
+
+```
 ## Features
 
 - Deep learning–based emotion detection
@@ -186,3 +204,4 @@ Benefits:
 
 Ilma Meraj  
 Computer Engineering Student
+
