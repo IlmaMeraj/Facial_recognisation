@@ -1,6 +1,6 @@
 # EmoVision: Facial Emotion Recognition System
 
-AffectVision is a Deep Learning based Facial Emotion Recognition Web Application that detects human emotions from facial images using Computer Vision and Machine Learning.
+EmoVision is a Deep Learning based Facial Emotion Recognition Web Application that detects human emotions from facial images using Computer Vision and Machine Learning.
 
 The system supports:
 
@@ -177,6 +177,7 @@ Benefits:
 ## Author
 Ilma Meraj  
 Computer Engineering Student 
+
 
 
 
