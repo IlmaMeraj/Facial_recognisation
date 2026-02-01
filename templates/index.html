@@ -1,155 +1,266 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Facial Expression Recognition</title>
-    <!-- Bootstrap CSS -->
+    <title>EmoTrack - Emotion AI</title>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
     <style>
       body {
-        background-color: #f7f9fc;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        font-family: "Segoe UI";
+        min-height: 100vh;
       }
 
-      .container {
-        margin-top: 50px;
-        max-width: 800px;
-        background-color: #ffffff;
+      /* HERO */
+      .hero-section {
+        text-align: center;
+        padding: 60px 20px 30px;
+      }
+
+      .hero-title {
+        font-size: 56px;
+        font-weight: 800;
+        background: linear-gradient(90deg, #00e5ff, #00c6ff, #0072ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-tag {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 22px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      /* MAIN CARD */
+      .main-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
         padding: 30px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      /* UPLOAD BOX */
+      .upload-box {
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 35px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .upload-box:hover {
+        border-color: #00e5ff;
+        box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
+        transform: translateY(-3px);
+      }
+
+      .upload-icon {
+        font-size: 40px;
+        color: #00e5ff;
+      }
+
+      .upload-text {
+        margin-top: 10px;
+        opacity: 0.9;
+      }
+
+      .file-name {
+        margin-top: 10px;
+        color: #00e5ff;
+      }
+
+      .preview-img {
+        margin-top: 15px;
+        max-width: 200px;
         border-radius: 12px;
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+        display: none;
       }
 
-      h2,
-      h3 {
-        text-align: center;
-        margin-bottom: 20px;
+      /* BUTTON */
+      .btn-custom {
+        background: linear-gradient(45deg, #00c6ff, #0072ff);
+        border: none;
+        color: white;
+        font-weight: 600;
       }
 
-      .upload-section,
-      .webcam-section {
-        margin-bottom: 40px;
-      }
-
-      #webcam {
-        border-radius: 10px;
-        border: 2px solid #dee2e6;
-      }
-
-      #predicted-emotion {
+      /* RESULT */
+      .result-box {
+        font-size: 28px;
         font-weight: bold;
-        color: #007bff;
+        margin-top: 15px;
+        color: #00e5ff;
       }
 
-      .btn-primary {
-        width: 100%;
+      video {
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
       }
 
-      .footer {
-        text-align: center;
-        margin-top: 40px;
-        font-size: 0.9rem;
-        color: #6c757d;
+      .loader {
+        display: none;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #00e5ff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
-  <body>
-    <div class="container">
-      <h2>Facial Expression Recognition</h2>
-      <p class="text-center text-muted">
-        Upload an image or use your webcam to detect emotions in real-time.
-      </p>
 
-      <!-- Upload Image Form -->
-      <div class="upload-section">
-        <h3>Upload an Image</h3>
+  <body>
+    <div class="container py-4">
+      <!-- HERO -->
+      <div class="hero-section">
+        <h1 class="hero-title">EmoTrack</h1>
+        <div class="hero-tag">Real-Time Facial Emotion Detector</div>
+      </div>
+
+      <!-- CARD -->
+      <div class="main-card">
+        <h4 class="text-center mb-4">Upload Face Image</h4>
+
         <form
           action="/predict"
-          method="post"
+          method="POST"
           enctype="multipart/form-data"
-          class="d-flex flex-column align-items-center"
+          class="text-center"
         >
-          <input type="file" name="image" class="form-control mb-3" required />
-          <input
-            type="submit"
-            value="Predict Emotion"
-            class="btn btn-primary"
-          />
+          <label class="upload-box w-100" id="uploadBox">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Drag & Drop Image or Click to Upload</div>
+
+            <input
+              type="file"
+              name="image"
+              id="fileInput"
+              hidden
+              accept="image/*"
+            />
+
+            <div class="file-name" id="fileName"></div>
+
+            <img id="previewImage" class="preview-img" />
+          </label>
+
+          <button class="btn btn-custom w-100 mt-4">Predict Emotion</button>
         </form>
-      </div>
 
-      <!-- Webcam Section -->
-      <div class="webcam-section text-center">
-        <h3>Or Use Webcam</h3>
-        <video
-          id="webcam"
-          width="480"
-          height="360"
-          autoplay
-          class="mb-3"
-        ></video>
-        <br />
-        <button id="capture-btn" class="btn btn-success mb-3">
-          Capture & Predict
-        </button>
-        <canvas id="canvas" style="display: none"></canvas>
-        <h4>
-          Detected Emotion:
-          <span id="predicted-emotion">{{ emotion if emotion else "" }}</span>
-        </h4>
+        <hr class="my-4" />
+
+        <h4 class="text-center">Live Webcam Detection</h4>
+
+        <div class="text-center">
+          <video id="webcam" width="420" autoplay></video><br />
+
+          <button id="capture-btn" class="btn btn-success mt-3 w-50">
+            Capture & Predict
+          </button>
+
+          <div class="loader mt-3" id="loader"></div>
+
+          <div class="result-box">
+            <span id="predicted-emotion">
+              {{ emotion if emotion else "" }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="footer">
-      &copy; 2025 Facial Expression Recognition | Developed by Ilma Meraj
-    </div>
-
-    <!-- Bootstrap JS (optional) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      /* WEBCAM */
       const webcam = document.getElementById("webcam");
-      const captureButton = document.getElementById("capture-btn");
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-      const predictedEmotion = document.getElementById("predicted-emotion");
+      const captureBtn = document.getElementById("capture-btn");
+      const canvas = document.createElement("canvas");
+      const loader = document.getElementById("loader");
+      const result = document.getElementById("predicted-emotion");
 
-      // Access webcam
-      if (navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia({ video: true })
-          .then(function (stream) {
-            webcam.srcObject = stream;
-          })
-          .catch(function (error) {
-            console.log("Error accessing webcam: " + error);
-          });
-      }
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => (webcam.srcObject = stream));
 
-      // Capture image from webcam
-      captureButton.addEventListener("click", function () {
+      captureBtn.onclick = () => {
+        loader.style.display = "block";
+
         canvas.width = webcam.videoWidth;
         canvas.height = webcam.videoHeight;
-        ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
-        const imageDataUrl = canvas.toDataURL("image/jpeg");
+        canvas.getContext("2d").drawImage(webcam, 0, 0);
+
+        const imageData = canvas.toDataURL("image/jpeg");
 
         fetch("/predict-webcam", {
           method: "POST",
-          body: JSON.stringify({ image: imageDataUrl }),
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageData }),
         })
-          .then((response) => response.json())
+          .then((res) => res.json())
           .then((data) => {
-            predictedEmotion.innerText = data.emotion;
-          })
-          .catch((error) => {
-            console.log("Error capturing image: ", error);
+            loader.style.display = "none";
+            result.innerText = data.emotion;
           });
+      };
+
+      /* UPLOAD UI */
+      const fileInput = document.getElementById("fileInput");
+      const fileName = document.getElementById("fileName");
+      const preview = document.getElementById("previewImage");
+      const uploadBox = document.getElementById("uploadBox");
+
+      fileInput.addEventListener("change", showFile);
+
+      uploadBox.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = "#00e5ff";
       });
+
+      uploadBox.addEventListener("dragleave", () => {
+        uploadBox.style.borderColor = "rgba(255,255,255,0.3)";
+      });
+
+      uploadBox.addEventListener("drop", (e) => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        showFile();
+      });
+
+      function showFile() {
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+
+          fileName.innerText = "Selected: " + file.name;
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      }
     </script>
   </body>
 </html>
