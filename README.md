@@ -22,16 +22,15 @@ Repository: https://github.com/IlmaMeraj/Facial_recognisation
 * Flask backend integration
 * REST API for webcam / image prediction
 * Bootstrap-based responsive frontend UI
-* Deployment-ready project structure
 
 
 ## Dataset
-The model was trained using the FER-2013 (Facial Expression Recognition 2013) dataset, a widely used benchmark dataset for facial emotion recognition tasks.
-
+The model was trained using the FER-2013 (Facial Expression Recognition 2013) dataset.
 Dataset Details:
 
 - Contains ~35,000 grayscale facial images
 - Image resolution: 48 × 48 pixels
+  
 Covers 7 emotion classes:
 * Angry
 * Disgust
@@ -78,7 +77,6 @@ facial_expression_recognition/
 ├ templates/
 │   └ index.html
 │
-├ static/
 │
 ├ app.py
 ├ requirements.txt
@@ -87,7 +85,6 @@ facial_expression_recognition/
 └ README.md
 ```
 
----
 
 ## Installation and Setup
 
@@ -112,7 +109,7 @@ python app.py
 http://127.0.0.1:5000
 ```
 
----
+
 
 ## Model Architecture
 The system uses a Convolutional Neural Network (CNN) designed for image-based emotion classification.
@@ -127,11 +124,31 @@ Custom CNN Architecture:
 * Dense Layer: 128 neurons, ReLU activation
 * Dropout Layer: 0.5 (prevents overfitting)
 * Output Layer: 7 neurons, Softmax activation
+  
 Training Configuration:
 - Optimizer: Adam
 - Loss Function: Categorical Crossentropy
 - Evaluation Metric: Accuracy
----
+
+## Transfer Learning Enhancement (VGG16)
+To improve performance, transfer learning was implemented using VGG16 pretrained on ImageNet.
+
+Approach:
+- Used VGG16 convolutional base as feature extractor
+- Removed top classification layers
+- Added:
+
+    * Global Average Pooling
+    * Dense (256 neurons, ReLU)
+    * Dropout (0.5)
+    * Dense (7 neurons, Softmax)
+
+Benefits:
+- Faster training convergence
+- Better feature extraction
+- Improved generalization
+- Achieved ~92% accuracy
+
 
 ## Application Workflow
 1. User uploads an image or captures a webcam frame  
@@ -146,7 +163,7 @@ Training Configuration:
 * Image upload prediction: POST /predict  
 * Webcam prediction: POST /predict-webcam
 
----
+
 
 ## Future Improvements
 * Cloud deployment (Render / AWS / GCP)  
@@ -157,22 +174,12 @@ Training Configuration:
 
 
 
-## Learning Outcomes
-* End-to-end ML project development  
-* Computer vision integration  
-* Flask backend development  
-* REST API development for ML systems  
-* Real-time image processing
-
-
 ## Author
-Ilma Khan  
-Computer Engineering Student | AI/ML Enthusiast
+Ilma Meraj  
+Computer Engineering Student 
 
----
 
-## License
-MIT License
+
 
 
 
