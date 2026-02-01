@@ -33,7 +33,7 @@
 #     st.write(f"**Predicted Emotion:** {emotion}")
 
 
-
+#import necessary libraries
 from flask import Flask, render_template, request,jsonify
 
 import numpy as np
@@ -47,21 +47,17 @@ from tensorflow.keras.models import load_model
 
 model = load_model("facialemotionmodel.h5")
 
-# Load model
-# with open("facialemotionmodel.json", "r") as json_file:
-#     loaded_model_json = json_file.read()
-# model = model_from_json(loaded_model_json)
-# model.load_weights("facialemotionmodel.h5")
 
-# Emotion labels (you can modify this if you used different ones)
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 app = Flask(__name__)
 
+# Home route
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# take image input from user and predict the emotion
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'image' not in request.files:
@@ -71,34 +67,45 @@ def predict():
     if file.filename == '':
         return render_template('index.html', emotion="No selected file")
 
-    image = Image.open(file).convert('L')  # Convert to grayscale
-    image = image.resize((48, 48))
-    img_array = np.array(image).reshape(1, 48, 48, 1) / 255.0
+# Preprocess the image
+    file_bytes = np.frombuffer(file.read(), np.uint8)
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)  # Convert to grayscale
+    image = cv2.resize(image, (48, 48))
+    # img_array = np.array(image).reshape(1, 48, 48, 1) / 255.0
 
+    img_array = image.reshape(1, 48, 48, 1)  # Model expects 4D input
+    img_array = img_array / 255.0    # Normalize the image
+
+
+    # Make a prediction
     prediction = model.predict(img_array)
     emotion = emotion_labels[np.argmax(prediction)]
 
     return render_template('index.html', emotion=emotion)
 
-# @app.route('/predict-webcam', methods=['POST'])
-# def predict_webcam():
-#     # Get the base64 image from the request
-#     data = request.get_json()
-#     image_data = data['image']
+# Route to handle webcam image input
+@app.route('/predict-webcam', methods=['POST'])
+def predict_webcam():
+    # Get the base64 image from the request
+    data = request.get_json()
+    image_data = data['image']
     
-#     # Decode the base64 image
-#     image_data = image_data.split(',')[1]  # Remove the base64 header part
-#     image = Image.open(BytesIO(base64.b64decode(image_data))).convert('L')
+    # Decode the base64 image
+    image_data = image_data.split(',')[1]  # Remove the base64 header part
+    image_bytes = base64.b64decode(image_data)
+    np_arr = np.frombuffer(image_bytes, np.uint8)
     
-#     # Preprocess the image
-#     image = image.resize((48, 48))
-#     img_array = np.array(image).reshape(1, 48, 48, 1) / 255.0
+    # Preprocess the image
+    image = cv2.imdecode(np_arr, cv2.IMREAD_GRAYSCALE)
+    image = cv2.resize(image, (48, 48))
+    img_array = image.reshape(1, 48, 48, 1)
+    img_array = img_array / 255.0
 
-#     # Make a prediction
-#     prediction = model.predict(img_array)
-#     emotion = emotion_labels[np.argmax(prediction)]
+    # Make a prediction
+    prediction = model.predict(img_array)
+    emotion = emotion_labels[np.argmax(prediction)]
     
-#     return jsonify({'emotion': emotion})
+    return jsonify({'emotion': emotion})
 
 if __name__ == '__main__':
     app.run(debug=True)
